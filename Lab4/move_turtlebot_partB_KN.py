@@ -38,7 +38,7 @@ def scan_callback(msg):
     scan_len = len(msg.ranges)
 
     # left side
-    for i in range(scan_len+20, scan_len):
+    for i in range(1,21):
         r = msg.ranges[i]
         if 0.0 < r < SAFETY_DIST:
             angle = msg.angle_min + i * msg.angle_increment
