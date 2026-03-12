@@ -37,24 +37,27 @@ def scan_callback(msg):
     
     scan_len = len(msg.ranges)
 
-    # left side
+    # left side (1–20)
     for i in range(1,21):
+        if i >= scan_len:
+            break
+
         r = msg.ranges[i]
         if 0.0 < r < SAFETY_DIST:
             angle = msg.angle_min + i * msg.angle_increment
             rospy.logwarn(f"Obstacle detected at {math.degrees(angle):.1f} degrees")
             obstacle_detected = True
-            return
+            break
 
-
-    # right side
-    for i in range(scan_len-20, scan_len):
-        r = msg.ranges[i]
-        if 0.0 < r < SAFETY_DIST:
-            angle = msg.angle_min + i * msg.angle_increment
-            rospy.logwarn(f"Obstacle detected at {math.degrees(angle):.1f} degrees")
-            obstacle_detected = True
-            return
+    # right side (last 20 indices)
+    if not obstacle_detected:
+        for i in range(scan_len-20, scan_len):
+            r = msg.ranges[i]
+            if 0.0 < r < SAFETY_DIST:
+                angle = msg.angle_min + i * msg.angle_increment
+                rospy.logwarn(f"Obstacle detected at {math.degrees(angle):.1f} degrees")
+                obstacle_detected = True
+                break
 
 
 def move():
