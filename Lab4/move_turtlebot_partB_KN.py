@@ -45,7 +45,7 @@ def scan_callback(msg):
             return
 
     # right side of cone
-    for i in range(223,243):
+    for i in range(223,242):
         r = msg.ranges[i]
         if 0.0 < r < SAFETY_DIST:
             angle = msg.angle_min + i * msg.angle_increment
