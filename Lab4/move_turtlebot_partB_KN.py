@@ -35,12 +35,23 @@ def scan_callback(msg):
     # Filter out 0.0 values (often noise/out of range) and check distances
     obstacle_detected = False
 
-    for i, r in enumerate(front_ranges):
+    # left side of cone
+    for i in range(1,21):
+        r = msg.ranges[i]
         if 0.0 < r < SAFETY_DIST:
             angle = msg.angle_min + i * msg.angle_increment
             rospy.logwarn(f"Obstacle detected at {math.degrees(angle):.1f} degrees")
             obstacle_detected = True
-            break
+            return
+
+    # right side of cone
+    for i in range(223,243):
+        r = msg.ranges[i]
+        if 0.0 < r < SAFETY_DIST:
+            angle = msg.angle_min + i * msg.angle_increment
+            rospy.logwarn(f"Obstacle detected at {math.degrees(angle):.1f} degrees")
+            obstacle_detected = True
+            return
 
 
 def move():
