@@ -29,8 +29,8 @@ def scan_callback(msg):
     SAFETY_DIST = 0.25 
     
     # Check a 40-degree cone in front (20 deg left and 20 deg right)
-    # TurtleBot3 index 0 is center-front. Indices 1-20 are left, 340-359 are right.
-    front_ranges = msg.ranges[0:40] #+ msg.ranges[340:360]
+    # TurtleBot3 index 0 does not exist. Indices 1 is left, 243 is right.
+    front_ranges = msg.ranges[1:21] + msg.ranges[223:243]
     
     # Filter out 0.0 values (often noise/out of range) and check distances
     obstacle_detected = False
