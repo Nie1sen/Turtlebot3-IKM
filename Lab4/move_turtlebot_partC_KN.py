@@ -129,10 +129,18 @@ def image_callback(msg):
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # Track red object
-    lower = np.array([0,120,70])
-    upper = np.array([10,255,255])
-    mask = cv2.inRange(hsv, lower, upper)
+    # Track red object (tight range)
+    lower_red1 = np.array([0,150,150])
+    upper_red1 = np.array([5,255,255])
+    lower_red2 = np.array([175,150,150])
+    upper_red2 = np.array([180,255,255])
+    
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
+    
+    # Optional: reduce noise
+    mask = cv2.GaussianBlur(mask, (5,5), 0)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
