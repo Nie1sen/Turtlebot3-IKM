@@ -8,6 +8,10 @@ import cv2
 import numpy as np
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+
+bridge = CvBridge()
 
 settings = termios.tcgetattr(sys.stdin)
 bridge = CvBridge()
@@ -78,7 +82,9 @@ def move():
     #lidar subscriber
     rospy.Subscriber('/scan', LaserScan, scan_callback)
     #camera subscriber
-    rospy.Subscriber('/camera/image', Image, image_callback)
+    rospy.Subscriber('/camera/rgb/image_raw', Image, image_callback)
+
+    image_pub = rospy.Publisher('/camera/image_processed', Image, queue_size=1)
 
     while not rospy.is_shutdown():
         Kp = 0.002
@@ -117,45 +123,37 @@ def move():
 def image_callback(msg):
     global target_visible, target_error
 
+    # Convert ROS Image to OpenCV
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
-
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # Example: track a red object-------------------
+    # Track red object
     lower = np.array([0,120,70])
     upper = np.array([10,255,255])
-
     mask = cv2.inRange(hsv, lower, upper)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     if contours:
         largest = max(contours, key=cv2.contourArea)
-
         M = cv2.moments(largest)
-
         if M["m00"] > 0:
             cx = int(M["m10"] / M["m00"])
-
             width = frame.shape[1]
             center = width // 2
-
             target_error = cx - center
             target_visible = True
-
-            rospy.logwarn("Target Found")
+            rospy.logwarn("Target Detected")
             
-            # Draw a circle on the target
+            # Draw a circle on the detected target
             cv2.circle(frame, (cx, frame.shape[0]//2), 10, (0,255,0), -1)
         else:
             target_visible = False
     else:
         target_visible = False
 
-    # Show camera feed
-    #cv2.imshow("TurtleBot3 Camera Feed", frame)
-    #cv2.imshow("Mask", mask)
-    #cv2.waitKey(1)
+    # Publish the processed image
+    image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
 
 
 if __name__ == '__main__':
