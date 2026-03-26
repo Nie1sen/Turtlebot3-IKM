@@ -140,7 +140,7 @@ def image_callback(msg):
     mask = cv2.bitwise_or(mask1, mask2)
     
     # Optional: reduce noise
-    mask = cv2.GaussianBlur(mask, (5,5), 0)
+    #mask = cv2.GaussianBlur(mask, (5,5), 0)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
