@@ -118,6 +118,7 @@ def move():
         if obstacle_detected and vel_msg.linear.x > 0:
             rospy.logwarn("SAFETY STOP: Obstacle in front!")
             vel_msg.linear.x = 0.0
+            vel_msg.angular.z = 0.0
 
         pub.publish(vel_msg)
         rate.sleep()
