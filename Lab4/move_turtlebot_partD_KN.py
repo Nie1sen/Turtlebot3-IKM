@@ -10,10 +10,9 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from ultralytics import YOLO
+import torch
 
-# Load YOLO model (nano for speed)
-yolo_model = YOLO("yolov8n.pt")
+model = torch.hub.load('ultralytics/yolov5', 'yolov5n', pretrained=True)
 
 image_pub = None
 
