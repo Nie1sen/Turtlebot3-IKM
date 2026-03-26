@@ -86,7 +86,7 @@ def move():
     #lidar subscriber
     rospy.Subscriber('/scan', LaserScan, scan_callback)
     #camera subscriber
-    rospy.Subscriber('/camera/rgb/image_raw', Image, image_callback)
+    rospy.Subscriber('/camera/image', Image, image_callback)
 
     while not rospy.is_shutdown():
         Kp = 0.002
