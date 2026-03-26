@@ -143,6 +143,8 @@ def image_callback(msg):
             target_error = cx - center
             target_visible = True
 
+            rospy.logwarn("Target Found")
+            
             # Draw a circle on the target
             cv2.circle(frame, (cx, frame.shape[0]//2), 10, (0,255,0), -1)
         else:
