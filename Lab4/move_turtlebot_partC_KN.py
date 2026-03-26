@@ -11,6 +11,8 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
+image_pub = None
+
 bridge = CvBridge()
 
 settings = termios.tcgetattr(sys.stdin)
@@ -70,6 +72,8 @@ def scan_callback(msg):
                 break
 
 def move():
+    global image_pub
+    image_pub = rospy.Publisher('/camera/image_processed', Image, queue_size=1)
     rospy.init_node('turtlebot3_autonomous_move', anonymous=True)
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
     rate = rospy.Rate(10)  # 10 Hz
@@ -83,8 +87,6 @@ def move():
     rospy.Subscriber('/scan', LaserScan, scan_callback)
     #camera subscriber
     rospy.Subscriber('/camera/rgb/image_raw', Image, image_callback)
-
-    image_pub = rospy.Publisher('/camera/image_processed', Image, queue_size=1)
 
     while not rospy.is_shutdown():
         Kp = 0.002
@@ -144,7 +146,7 @@ def image_callback(msg):
             target_error = cx - center
             target_visible = True
             rospy.logwarn("Target Detected")
-            
+
             # Draw a circle on the detected target
             cv2.circle(frame, (cx, frame.shape[0]//2), 10, (0,255,0), -1)
         else:
