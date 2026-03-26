@@ -153,9 +153,9 @@ def image_callback(msg):
         target_visible = False
 
     # Show camera feed
-    cv2.imshow("TurtleBot3 Camera Feed", frame)
-    cv2.imshow("Mask", mask)
-    cv2.waitKey(1)
+    #cv2.imshow("TurtleBot3 Camera Feed", frame)
+    #cv2.imshow("Mask", mask)
+    #cv2.waitKey(1)
 
 
 if __name__ == '__main__':
