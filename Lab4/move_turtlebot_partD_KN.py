@@ -133,16 +133,17 @@ def image_callback(msg):
     results = model(frame)  # Run YOLO inference
 
     target_visible = False
-    for box in results.boxes:
-        cls_id = int(box.cls[0])
-        if cls_id == 67:  # cell phone in COCO
-            xyxy = box.xyxy[0].cpu().numpy()
-            x1, y1, x2, y2 = xyxy
+    for box in results.boxes:   # directly iterate boxes
+        cls_id = int(box.cls[0])          # class ID
+        conf = float(box.conf[0])         # confidence
+        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()  # bounding box coordinates
+        if cls_id == 67:  # cell phone
+            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
             cx = int((x1 + x2)/2)
-            cy = int((y1 + y2)/2)
-            target_error = cx - frame.shape[1]//2
+            target_error = cx - frame.shape[1] // 2
             target_visible = True
-            cv2.circle(frame, (cx, cy), 10, (0,255,0), -1)
+            # draw circle
+            cv2.circle(frame, (cx, int((y1+y2)/2)), 10, (0,255,0), -1)
 
     # Publish annotated frame
     annotated_frame = results.plot()  # optional if you want bounding boxes
