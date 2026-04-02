@@ -127,35 +127,25 @@ def move():
         rate.sleep()
 
 def image_callback(msg):
-    global target_visible, target_error, image_pub
+    global target_visible, target_error
 
-    # Convert ROS Image to OpenCV
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
-    
-    # Run YOLO inference
-    results = model(frame)  # results is a Detections object
+    results = model(frame)  # YOLOv5 inference
 
     target_visible = False
-    annotated_frame = frame.copy()
-
-    # results.boxes.xyxy, results.boxes.cls, results.boxes.conf are tensors
-    for box, cls_id, conf in zip(results.boxes.xyxy, results.boxes.cls, results.boxes.conf):
-        cls_id = int(cls_id.item())
-        conf = float(conf.item())
-        x1, y1, x2, y2 = box.cpu().numpy()
-
-        if cls_id == 67:  # cell phone class
-            cx = int((x1 + x2)/2)
-            cy = int((y1 + y2)/2)
+    for *xyxy, conf, cls_id in results.xyxy[0].cpu().numpy():
+        cls_id = int(cls_id)
+        if cls_id == 67:  # cell phone
+            x1, y1, x2, y2 = xyxy
+            cx = int((x1 + x2) / 2)
             target_error = cx - frame.shape[1] // 2
             target_visible = True
+            cv2.circle(frame, (cx, int((y1+y2)/2)), 10, (0,255,0), -1)
 
-            # Draw circle and bounding box
-            cv2.circle(annotated_frame, (cx, cy), 10, (0, 255, 0), -1)
-            cv2.rectangle(annotated_frame, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 2)
-
-    # Publish annotated frame
+    # Optionally draw all boxes from YOLO
+    annotated_frame = np.array(results.render()[0])
     image_pub.publish(bridge.cv2_to_imgmsg(annotated_frame, "bgr8"))
+
 
 
 if __name__ == '__main__':
