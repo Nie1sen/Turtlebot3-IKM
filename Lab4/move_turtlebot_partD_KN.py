@@ -127,43 +127,26 @@ def move():
         rate.sleep()
 
 def image_callback(msg):
-    global target_visible, target_error, image_pub
+    global target_visible, target_error
 
-    # Convert ROS Image to OpenCV
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
+    results = model(frame)  # Run YOLO inference
 
-    # Run YOLO inference
-    results = model(frame)
-
-    # Start with no target visible
     target_visible = False
-
-    # Iterate through detections
-    for det in results[0].boxes:  # results[0].boxes contains all detections
-        cls_id = int(det.cls[0])
-        label = results[0].names[cls_id]
-
-        if label.lower() == "cell phone":  # YOLO class for phone
-            # Get bounding box
-            x1, y1, x2, y2 = map(int, det.xyxy[0])
-            cx = (x1 + x2) // 2
-            cy = (y1 + y2) // 2
-
-            # Draw rectangle + center
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
-
-            # Compute target error
-            width = frame.shape[1]
-            center = width // 2
-            target_error = cx - center
+    for box in results.boxes:
+        cls_id = int(box.cls[0])
+        if cls_id == 67:  # cell phone in COCO
+            xyxy = box.xyxy[0].cpu().numpy()
+            x1, y1, x2, y2 = xyxy
+            cx = int((x1 + x2)/2)
+            cy = int((y1 + y2)/2)
+            target_error = cx - frame.shape[1]//2
             target_visible = True
+            cv2.circle(frame, (cx, cy), 10, (0,255,0), -1)
 
-            # Only track the first phone detected
-            break
-
-    # Publish annotated frame to ROS topic
-    image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
+    # Publish annotated frame
+    annotated_frame = results.plot()  # optional if you want bounding boxes
+    image_pub.publish(bridge.cv2_to_imgmsg(annotated_frame, "bgr8"))
 
 
 if __name__ == '__main__':
