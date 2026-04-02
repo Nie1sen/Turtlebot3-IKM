@@ -12,6 +12,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import torch
 
+global model
 model = torch.hub.load('ultralytics/yolov5:v6.2', 'yolov5n', pretrained=True)
 
 image_pub = None
