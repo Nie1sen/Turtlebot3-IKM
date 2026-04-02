@@ -127,26 +127,37 @@ def move():
         rate.sleep()
 
 def image_callback(msg):
-    global target_visible, target_error
+    global target_visible, target_error, image_pub
 
+    # Convert ROS Image to OpenCV
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
-    results = model(frame)  # Run YOLO inference
+    
+    # Run YOLO inference
+    results = model(frame)  
 
     target_visible = False
-    for box in results.boxes:   # directly iterate boxes
-        cls_id = int(box.cls[0])          # class ID
-        conf = float(box.conf[0])         # confidence
-        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()  # bounding box coordinates
+
+    # Make a copy for annotation
+    annotated_frame = frame.copy()
+
+    # Iterate over all detections
+    for box in results.boxes:
+        cls_id = int(box.cls[0])       # class ID
+        conf = float(box.conf[0])      # confidence
+        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+
         if cls_id == 67:  # cell phone
-            x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
-            cx = int((x1 + x2)/2)
+            cx = int((x1 + x2) / 2)
+            cy = int((y1 + y2) / 2)
             target_error = cx - frame.shape[1] // 2
             target_visible = True
-            # draw circle
-            cv2.circle(frame, (cx, int((y1+y2)/2)), 10, (0,255,0), -1)
 
-    # Publish annotated frame
-    annotated_frame = results.plot()  # optional if you want bounding boxes
+            # Draw a circle at the center
+            cv2.circle(annotated_frame, (cx, cy), 10, (0, 255, 0), -1)
+            # Optional: draw bounding box
+            cv2.rectangle(annotated_frame, (int(x1), int(y1)), (int(x2), int(y2)), (0,255,0), 2)
+
+    # Publish annotated frame to ROS
     image_pub.publish(bridge.cv2_to_imgmsg(annotated_frame, "bgr8"))
 
 
