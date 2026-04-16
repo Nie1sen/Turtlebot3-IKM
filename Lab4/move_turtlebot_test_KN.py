@@ -138,7 +138,7 @@ def image_callback(msg):
         break
 
     # Publish annotated frame to ROS topic
-    image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
+    #image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
 
 
 if __name__ == '__main__':
