@@ -111,7 +111,8 @@ def image_callback(msg):
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
 
     # Run YOLO inference
-    results = yolo_model.predict(frame, imgsz=320, device=0, half=True, verbose=False)
+    results = yolo_model.predict(frame, device=0, verbose=False)
+    #results = yolo_model.predict(frame, imgsz=320, device=0, half=True, verbose=False)
     
     # Start with no target visible
     target_visible = False
