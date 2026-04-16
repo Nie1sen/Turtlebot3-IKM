@@ -65,8 +65,12 @@ def scan_callback(msg):
 # =========================
 def image_callback(msg):
     global latest_error, target_visible
-
-    frame = bridge.imgmsg_to_cv2(msg, "bgr8")
+    
+    # Decode compressed image → OpenCV
+    np_arr = np.frombuffer(msg.data, np.uint8)
+    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+    
+    #frame = bridge.imgmsg_to_cv2(msg, "bgr8")
 
     # TensorRT inference (FAST)
     results = yolo_model.predict(frame, device=0, verbose=False)
