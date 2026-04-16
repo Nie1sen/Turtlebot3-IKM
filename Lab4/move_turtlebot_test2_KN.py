@@ -7,7 +7,7 @@ from cv_bridge import CvBridge
 import cv2
 import math
 import threading
-
+from sensor_msgs.msg import CompressedImage
 from ultralytics import YOLO
 
 
@@ -154,8 +154,8 @@ def main():
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
 
     rospy.Subscriber("/scan", LaserScan, scan_callback)
-    rospy.Subscriber("/camera/image", Image, image_callback)
-
+    #rospy.Subscriber("/camera/image", Image, image_callback)
+    rospy.Subscriber("/camera/image/compressed", Image, image_callback, queue_size=1)
     rospy.loginfo("YOLO TensorRT TurtleBot node started")
 
     control_loop(pub)
