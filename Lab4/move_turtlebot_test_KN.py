@@ -18,8 +18,8 @@ import torch
 yolo_model = YOLO("best.engine")
 yolo_model.to("cuda")
 
-print("CUDA available:", torch.cuda.is_available())
-print("Model device:", next(yolo_model.model.parameters()).device)
+#print("CUDA available:", torch.cuda.is_available())
+#print("Model device:", next(yolo_model.model.parameters()).device)
 
 image_pub = None
 
