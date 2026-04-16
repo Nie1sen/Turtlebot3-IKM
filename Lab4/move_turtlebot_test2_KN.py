@@ -9,7 +9,7 @@ import math
 import threading
 from sensor_msgs.msg import CompressedImage
 from ultralytics import YOLO
-
+import numpy as np
 
 # =========================
 # GLOBAL STATE (shared)
