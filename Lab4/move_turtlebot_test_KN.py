@@ -11,9 +11,12 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from ultralytics import YOLO
+import torch
+print("CUDA available:", torch.cuda.is_available())
+print("Model device:", next(yolo_model.model.parameters()).device)
 
 # Load YOLO model (Ivan block model 1)
-yolo_model = YOLO("best.pt")
+yolo_model = YOLO("best.engine")
 yolo_model.to("cuda")
 
 image_pub = None
@@ -106,7 +109,7 @@ def image_callback(msg):
     frame = bridge.imgmsg_to_cv2(msg, "bgr8")
 
     # Run YOLO inference
-    results = yolo_model.predict(frame, imgsz=640, device=0, half=True, verbose=False)
+    results = yolo_model.predict(frame, imgsz=320, device=0, half=True, verbose=False)
     
     # Start with no target visible
     target_visible = False
