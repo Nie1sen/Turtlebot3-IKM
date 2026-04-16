@@ -13,7 +13,7 @@ from cv_bridge import CvBridge
 from ultralytics import YOLO
 
 # Load YOLO model (Ivan block model 1)
-yolo_model = YOLO("SeeBlockModel.pt")
+yolo_model = YOLO("best.pt")
 
 image_pub = None
 
