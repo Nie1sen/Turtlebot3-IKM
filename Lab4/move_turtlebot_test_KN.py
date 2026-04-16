@@ -79,16 +79,18 @@ def move():
     rospy.Subscriber('/camera/image', Image, image_callback)
 
     while not rospy.is_shutdown():
-        Kp = 0.002
+        Kp = 0.005
         forward_speed = 0.05
-        search_speed = 0.2
 
         if target_visible:
-            vel_msg.linear.x = forward_speed
             vel_msg.angular.z = -Kp * target_error
+            if abs(target_error) > 80:
+                vel_msg.linear.x = 0.0
+            else:
+                vel_msg.linear.x = forward_speed
         else:
             vel_msg.linear.x = 0.0
-            vel_msg.angular.z = search_speed
+            vel_msg.angular.z = 0.2
 
         if obstacle_detected and vel_msg.linear.x > 0:
             rospy.logwarn("SAFETY STOP: Obstacle in front!")
