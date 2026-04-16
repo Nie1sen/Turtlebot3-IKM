@@ -12,12 +12,14 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from ultralytics import YOLO
 import torch
-print("CUDA available:", torch.cuda.is_available())
-print("Model device:", next(yolo_model.model.parameters()).device)
+
 
 # Load YOLO model (Ivan block model 1)
 yolo_model = YOLO("best.engine")
 yolo_model.to("cuda")
+
+print("CUDA available:", torch.cuda.is_available())
+print("Model device:", next(yolo_model.model.parameters()).device)
 
 image_pub = None
 
