@@ -16,7 +16,7 @@ import torch
 
 # Load YOLO model (Ivan block model 1)
 yolo_model = YOLO("best.engine")
-yolo_model.to("cuda")
+#yolo_model.to("cuda")
 
 #print("CUDA available:", torch.cuda.is_available())
 #print("Model device:", next(yolo_model.model.parameters()).device)
