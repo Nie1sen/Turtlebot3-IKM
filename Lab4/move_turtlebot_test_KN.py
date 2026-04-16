@@ -66,7 +66,7 @@ def move():
     image_pub = rospy.Publisher('/camera/image_processed', Image, queue_size=1)
     rospy.init_node('turtlebot3_autonomous_move', anonymous=True)
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-    rate = rospy.Rate(100)  # 100 Hz
+    rate = rospy.Rate(10)  # 10 Hz
     vel_msg = Twist()
 
     # speed step increments
