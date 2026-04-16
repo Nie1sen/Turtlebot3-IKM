@@ -103,9 +103,9 @@ def image_callback(msg):
 def control_loop(pub):
     rate = rospy.Rate(100)
 
-    Kp = 0.005
+    Kp = 0.002
     forward_speed = 0.05
-    search_speed = 0.2
+    search_speed = 0.05
 
     vel_msg = Twist()
 
