@@ -14,6 +14,7 @@ from ultralytics import YOLO
 
 # Load YOLO model (Ivan block model 1)
 yolo_model = YOLO("best.pt")
+results = model.predict(source=0, device=0)
 
 image_pub = None
 
