@@ -126,8 +126,8 @@ def control_loop(pub):
     rate = rospy.Rate(100)
 
     Kp = 0.002
-    forward_speed = 0.05
-    search_speed = 0.1
+    forward_speed = 0.07
+    search_speed = 0.5
     find_speed = 0.3
 
     vel_msg = Twist()
