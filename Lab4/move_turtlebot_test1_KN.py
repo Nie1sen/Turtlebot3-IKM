@@ -19,7 +19,8 @@ latest_frame = None
 latest_error = 0
 target_visible = False
 obstacle_detected = False
-image_pub = None
+
+#image_pub = None    #debug option
 
 lock = threading.Lock()
 
@@ -78,7 +79,8 @@ def image_callback(msg):
 
 
 def yolo_loop():
-    global latest_error, target_visible, image_pub
+    global latest_error, target_visible
+    #global image_pub    #debug option
 
     while not rospy.is_shutdown():
 
@@ -109,7 +111,7 @@ def yolo_loop():
                 found = True
                 
                 # publish debug image
-                image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
+                # image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))    #debug option
                 break
 
         with lock:
@@ -160,8 +162,8 @@ def main():
 
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
     
-    global image_pub
-    image_pub = rospy.Publisher("/yolo/debug_image", Image, queue_size=1)
+    #global image_pub    #debug option
+    #image_pub = rospy.Publisher("/yolo/debug_image", Image, queue_size=1)    #debug option
     
     rospy.Subscriber(
         "/camera/image/compressed",
