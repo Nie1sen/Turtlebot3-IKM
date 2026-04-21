@@ -15,6 +15,7 @@ import numpy as np
 # =========================
 # GLOBAL STATE (shared)
 # =========================
+latest_frame = None
 latest_error = 0
 target_visible = False
 obstacle_detected = False
@@ -65,41 +66,51 @@ def scan_callback(msg):
 # CAMERA + YOLO CALLBACK
 # =========================
 def image_callback(msg):
-    global latest_error, target_visible
-    
-    # Decode compressed image → OpenCV
+    global latest_frame
+
     np_arr = np.frombuffer(msg.data, np.uint8)
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    
-    #frame = bridge.imgmsg_to_cv2(msg, "bgr8")
-
-    # TensorRT inference (FAST)
-    results = yolo_model.predict(frame, device=0, verbose=False)
-
-    found = False
-    error = 0
-
-    if results and results[0].boxes is not None:
-        for det in results[0].boxes:
-
-            x1, y1, x2, y2 = map(int, det.xyxy[0])
-            cx = (x1 + x2) // 2
-
-            width = frame.shape[1]
-            center = width // 2
-
-            error = cx - center
-            found = True
-
-            # draw for debugging
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.circle(frame, (cx, y1), 5, (0, 0, 255), -1)
-
-            break  # only first detection
 
     with lock:
-        latest_error = error
-        target_visible = found
+        latest_frame = frame
+
+
+
+def yolo_loop():
+    global latest_error, target_visible
+
+    while not rospy.is_shutdown():
+
+        with lock:
+            if latest_frame is None:
+                continue
+            frame = latest_frame.copy()
+
+        results = yolo_model.predict(
+            frame,
+            device=0,
+            imgsz=320,     # BIG SPEED BOOST
+            verbose=False
+        )
+
+        found = False
+        error = 0
+
+        if results and results[0].boxes is not None:
+            for det in results[0].boxes:
+
+                x1, y1, x2, y2 = map(int, det.xyxy[0])
+                cx = (x1 + x2) // 2
+
+                center = frame.shape[1] // 2
+                error = cx - center
+
+                found = True
+                break
+
+        with lock:
+            latest_error = error
+            target_visible = found
 
 
 # =========================
@@ -121,29 +132,16 @@ def control_loop(pub):
             visible = target_visible
             obstacle = obstacle_detected
 
-        # obstacle override
         if obstacle:
-            vel_msg.linear.x = 0.0
-            vel_msg.angular.z = 0.0
-            pub.publish(vel_msg)
-            rate.sleep()
-            continue
+            vel_msg.linear.x = 0
+            vel_msg.angular.z = 0
 
-        # tracking mode
-        if visible:
-
-            # angular correction
+        elif visible:
             vel_msg.angular.z = -Kp * error
+            vel_msg.linear.x = forward_speed if abs(error) < 80 else 0.0
 
-            # forward logic (prevents overshoot)
-            if abs(error) > 80:
-                vel_msg.linear.x = 0.0
-            else:
-                vel_msg.linear.x = forward_speed
-
-        # search mode
         else:
-            vel_msg.linear.x = 0.0
+            vel_msg.linear.x = 0
             vel_msg.angular.z = search_speed
 
         pub.publish(vel_msg)
@@ -158,17 +156,24 @@ def main():
 
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
 
-    rospy.Subscriber("/scan", LaserScan, scan_callback)
-    #rospy.Subscriber("/camera/image", Image, image_callback)
-    rospy.Subscriber("/camera/image/compressed",
-                 CompressedImage,
-                 image_callback,
-                 queue_size=1,
-                 buff_size=2**24)
-    np_arr = np.frombuffer(msg.data, np.uint8)
-    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    rospy.loginfo("YOLO TensorRT TurtleBot node started")
+    rospy.Subscriber(
+        "/camera/image/compressed",
+        CompressedImage,
+        image_callback,
+        queue_size=1,
+        buff_size=2**24
+    )
 
+    rospy.Subscriber("/scan", LaserScan, scan_callback)
+
+    rospy.loginfo("YOLO TensorRT node started")
+
+    # start YOLO thread
+    t = threading.Thread(target=yolo_loop)
+    t.daemon = True
+    t.start()
+
+    # control loop (main thread)
     control_loop(pub)
 
 
