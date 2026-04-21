@@ -19,6 +19,7 @@ latest_frame = None
 latest_error = 0
 target_visible = False
 obstacle_detected = False
+image_pub = None
 
 lock = threading.Lock()
 
@@ -77,7 +78,7 @@ def image_callback(msg):
 
 
 def yolo_loop():
-    global latest_error, target_visible
+    global latest_error, target_visible, image_pub
 
     while not rospy.is_shutdown():
 
@@ -159,6 +160,7 @@ def main():
 
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
     
+    global image_pub
     image_pub = rospy.Publisher("/yolo/debug_image", Image, queue_size=1)
     
     rospy.Subscriber(
