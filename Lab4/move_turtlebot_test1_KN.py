@@ -128,6 +128,7 @@ def control_loop(pub):
     Kp = 0.002
     forward_speed = 0.05
     search_speed = 0.1
+    find_speed = 0.3
 
     vel_msg = Twist()
 
@@ -144,6 +145,12 @@ def control_loop(pub):
 
         elif visible:
             vel_msg.angular.z = -Kp * error
+            # clamp to ± find speed
+            if vel_msg.angular.z > find_speed:
+                vel_msg.angular.z = find_speed
+            elif vel_msg.angular.z < -find_speed:
+                vel_msg.angular.z = -find_speed
+                
             vel_msg.linear.x = forward_speed if abs(error) < 80 else 0.0
 
         else:
