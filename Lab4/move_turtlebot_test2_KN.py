@@ -145,11 +145,7 @@ def control_loop(pub):
 
         elif visible:
             vel_msg.angular.z = -Kp * error
-            # clamp to ± find speed
-            if vel_msg.angular.z > find_speed:
-                vel_msg.angular.z = find_speed
-            elif vel_msg.angular.z < -find_speed:
-                vel_msg.angular.z = -find_speed
+            vel_msg.angular.z = max(-find_speed, min(find_speed, vel_msg.angular.z))
                 
             vel_msg.linear.x = forward_speed if abs(error) < 80 else 0.0
 
