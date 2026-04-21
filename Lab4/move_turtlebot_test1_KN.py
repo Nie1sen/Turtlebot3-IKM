@@ -106,6 +106,9 @@ def yolo_loop():
                 error = cx - center
 
                 found = True
+                
+                # publish debug image
+                image_pub.publish(bridge.cv2_to_imgmsg(frame, "bgr8"))
                 break
 
         with lock:
@@ -155,7 +158,9 @@ def main():
     rospy.init_node("turtlebot3_yolo_tensorrt", anonymous=True)
 
     pub = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
-
+    
+    image_pub = rospy.Publisher("/yolo/debug_image", Image, queue_size=1)
+    
     rospy.Subscriber(
         "/camera/image/compressed",
         CompressedImage,
