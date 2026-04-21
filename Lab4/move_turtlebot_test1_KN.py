@@ -127,7 +127,7 @@ def control_loop(pub):
 
     Kp = 0.002
     forward_speed = 0.05
-    search_speed = 0.3
+    search_speed = 0.1
 
     vel_msg = Twist()
 
