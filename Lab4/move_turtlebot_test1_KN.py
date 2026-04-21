@@ -11,6 +11,7 @@ from sensor_msgs.msg import CompressedImage
 from ultralytics import YOLO
 import numpy as np
 
+
 # =========================
 # GLOBAL STATE (shared)
 # =========================
@@ -159,12 +160,13 @@ def main():
 
     rospy.Subscriber("/scan", LaserScan, scan_callback)
     #rospy.Subscriber("/camera/image", Image, image_callback)
-    rospy.Subscriber(
-    "/camera/image/compressed",
-    CompressedImage,
-    image_callback,
-    queue_size=1
-    )
+    rospy.Subscriber("/camera/image/compressed",
+                 CompressedImage,
+                 image_callback,
+                 queue_size=1,
+                 buff_size=2**24)
+    np_arr = np.frombuffer(msg.data, np.uint8)
+    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     rospy.loginfo("YOLO TensorRT TurtleBot node started")
 
     control_loop(pub)
