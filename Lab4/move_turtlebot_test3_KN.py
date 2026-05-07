@@ -140,12 +140,14 @@ def control_loop(pub, lift_pub):
 
     Kp = 0.002
     forward_speed = 0.07
-    search_speed = 0.3
-    find_speed = 0.15
+    search_speed = 0.5
+    find_speed = 0.3
     lift_deadband = 30 
     lift_speed = 30
 
     vel_msg = Twist()
+    last_seen_time = rospy.Time.now()
+    lost_target_delay = rospy.Duration(1.0)   # 1 second delay before searching
 
     while not rospy.is_shutdown():
 
@@ -161,7 +163,7 @@ def control_loop(pub, lift_pub):
             lift_pub.publish(Int32(data=0))
 
         elif visible:
-
+            last_seen_time = rospy.Time.now()
             vel_msg.angular.z = -Kp * error
             vel_msg.angular.z = max(-find_speed,
                                     min(find_speed, vel_msg.angular.z))
@@ -173,7 +175,7 @@ def control_loop(pub, lift_pub):
             if lift_error > lift_deadband:
                 lift_cmd.data = lift_speed
 
-            elif lift_error < -(2*lift_deadband):
+            elif lift_error < -lift_deadband:
                 lift_cmd.data = -lift_speed
 
             else:
@@ -183,11 +185,16 @@ def control_loop(pub, lift_pub):
 
         else:
             vel_msg.linear.x = 0
-            vel_msg.angular.z = search_speed
             lift_pub.publish(Int32(data=0))
 
-        pub.publish(vel_msg)
-        rate.sleep()
+            # wait a bit before searching
+            if rospy.Time.now() - last_seen_time > lost_target_delay:
+                vel_msg.angular.z = search_speed
+            else:
+                vel_msg.angular.z = 0
+
+    pub.publish(vel_msg)
+    rate.sleep()
 
 
 # =========================
