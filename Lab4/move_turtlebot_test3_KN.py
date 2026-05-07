@@ -146,7 +146,7 @@ def control_loop(pub, lift_pub):
     lift_speed = 30
 
     vel_msg = Twist()
-    last_seen_time = rospy.Time.now()
+    last_seen_time = None;
     lost_target_delay = rospy.Duration(1.0)   # 1 second delay before searching
 
     while not rospy.is_shutdown():
@@ -188,7 +188,11 @@ def control_loop(pub, lift_pub):
             lift_pub.publish(Int32(data=0))
 
             # wait a bit before searching
-            if rospy.Time.now() - last_seen_time > lost_target_delay:
+            if last_seen_time is None:
+            # never seen a block yet -> search immediately
+            vel_msg.angular.z = search_speed
+
+            elif rospy.Time.now() - last_seen_time > lost_target_delay:
                 vel_msg.angular.z = search_speed
             else:
                 vel_msg.angular.z = 0
