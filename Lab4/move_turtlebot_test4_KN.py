@@ -93,7 +93,7 @@ def yolo_loop():
         results = yolo_model.predict(
             frame,
             device=0,
-            #imgsz=320, # enable to reduce size if needed
+            imgsz=320, #enable to reduce size if needed
             verbose=False
         )
 
