@@ -186,8 +186,8 @@ def control_loop(pub, lift_pub):
             vel_msg.angular.z = search_speed
             lift_pub.publish(Int32(data=0))
 
-    pub.publish(vel_msg)
-    rate.sleep()
+        pub.publish(vel_msg)
+        rate.sleep()
 
 
 # =========================
