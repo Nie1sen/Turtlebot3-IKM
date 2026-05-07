@@ -149,7 +149,7 @@ def control_loop(pub, lift_pub):
 
     while not rospy.is_shutdown():
 
-       with lock:
+        with lock:
             error = latest_error
             lift_error = latest_lift_error
             visible = target_visible
