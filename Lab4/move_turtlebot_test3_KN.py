@@ -164,7 +164,7 @@ def control_loop(pub, lift_pub):
 
             vel_msg.angular.z = -Kp * error
             vel_msg.angular.z = max(-find_speed,
-                            min(find_speed, vel_msg.angular.z))
+                                    min(find_speed, vel_msg.angular.z))
 
             vel_msg.linear.x = forward_speed if abs(error) < 80 else 0.0
 
@@ -186,8 +186,8 @@ def control_loop(pub, lift_pub):
             vel_msg.angular.z = search_speed
             lift_pub.publish(Int32(data=0))
 
-        pub.publish(vel_msg)
-        rate.sleep()
+    pub.publish(vel_msg)
+    rate.sleep()
 
 
 # =========================
