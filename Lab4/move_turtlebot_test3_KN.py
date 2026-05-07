@@ -140,10 +140,10 @@ def control_loop(pub, lift_pub):
 
     Kp = 0.002
     forward_speed = 0.07
-    search_speed = 0.5
-    find_speed = 0.3
+    search_speed = 0.3
+    find_speed = 0.15
     lift_deadband = 30 
-    lift_speed = 1
+    lift_speed = 30
 
     vel_msg = Twist()
 
@@ -173,7 +173,7 @@ def control_loop(pub, lift_pub):
             if lift_error > lift_deadband:
                 lift_cmd.data = lift_speed
 
-            elif lift_error < -lift_deadband:
+            elif lift_error < -(2*lift_deadband):
                 lift_cmd.data = -lift_speed
 
             else:
