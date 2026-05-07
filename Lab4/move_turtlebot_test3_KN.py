@@ -190,7 +190,7 @@ def control_loop(pub, lift_pub):
             # wait a bit before searching
             if last_seen_time is None:
             # never seen a block yet -> search immediately
-            vel_msg.angular.z = search_speed
+                vel_msg.angular.z = search_speed
 
             elif rospy.Time.now() - last_seen_time > lost_target_delay:
                 vel_msg.angular.z = search_speed
