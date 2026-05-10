@@ -81,6 +81,7 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
     rate = rospy.Rate(20)
 
     state = SEARCH_BLOCK
+    last_state = None
     state_start = time.time()
 
 
@@ -267,7 +268,10 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
         lift_pub.publish(lift)
         claw_pub.publish(claw)
 
-        state_pub.publish(String(data=state))
+        if state != last_state:
+            rospy.loginfo(f"STATE CHANGE: {last_state} -> {state}")
+            state_pub.publish(String(data=state))
+            last_state = state
         debug_pub.publish(String(data=debug_msg))
 
         rate.sleep()
