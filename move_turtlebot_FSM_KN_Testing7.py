@@ -198,7 +198,7 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
             claw.data = 0
 
             if total_lift_time > 45.0:
-                state = DROP
+                state = MOVE_TO_BASKET
                 total_lift_time += time.time() - state_start
                 state_start = time.time()
             else:
