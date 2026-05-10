@@ -260,9 +260,7 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
         lift_pub.publish(lift)
         claw_pub.publish(claw)
 
-        if state != last_state:
-            print("STATE:", state)
-            last_state = state
+        state_pub.publish(String(data=state))
         debug_pub.publish(String(data=debug_msg))
 
         rate.sleep()
