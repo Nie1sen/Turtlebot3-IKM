@@ -250,6 +250,13 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
 
             if time.time() - state_start > 45.0:
                 lift.data = 0
+                block_seen = False
+                basket_seen = False
+                top_seen = False
+                block_error_x = 0
+                basket_error_x = 0
+                block_area = 0
+                basket_area = 0
                 total_lift_time = 0.0
                 state = SEARCH_BLOCK
 
