@@ -7,6 +7,7 @@ import time
 import sys
 import termios
 import tty
+import threading
 
 # =========================
 # CONFIG
