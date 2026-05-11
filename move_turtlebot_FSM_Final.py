@@ -33,8 +33,8 @@ block_area = 0
 basket_area = 0
 
 BASE_SPEED = 0.10
-K_AREA = 8e-7     # tune this
-MIN_SPEED = 0.02
+K_AREA = 5e-6     # tune this
+MIN_SPEED = 0.03
 
 current_state = "SEARCH_BLOCK"
 
