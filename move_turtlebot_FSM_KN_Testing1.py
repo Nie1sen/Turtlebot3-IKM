@@ -170,7 +170,7 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
             lift.data = 0
             claw.data = 20
 
-            if time.time() - state_start > 3.4:
+            if time.time() - state_start > 3.5:
                 state = LIFT_TOP
                 state_start = time.time()
 
@@ -232,7 +232,7 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
             lift.data = 0
             claw.data = 0
 
-            if time.time() - state_start > 3.0:
+            if time.time() - state_start > 3.5:
                 state = DROP
                 state_start = time.time()
             else:
