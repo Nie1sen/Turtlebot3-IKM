@@ -269,14 +269,21 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
             vel.angular.z = -Kp * block_error_x
             vel.angular.z = max(-0.3, min(0.3, vel.angular.z))
 
-            if block_area < 140000:
-                vel.linear.x = BASE_SPEED - K_AREA * block_area
-                vel.linear.x = max(MIN_SPEED, min(BASE_SPEED, vel.linear.x))
+            # only drive forward if aligned enough
+            if abs(block_error_x) < 10:
+
+                if block_area < 140000:
+                    vel.linear.x = BASE_SPEED - K_AREA * block_area
+                    vel.linear.x = max(MIN_SPEED, min(BASE_SPEED, vel.linear.x))
+                else:
+                    vel.linear.x = 0.0
+                    vel.angular.z = 0.0
+                    state_start = time.time()
+                    state = LIFT
+
             else:
+                # not aligned yet: just turn in place
                 vel.linear.x = 0.0
-                vel.angular.z = 0.0
-                state_start = time.time()
-                state = LIFT
 
         elif state == LIFT:
 
