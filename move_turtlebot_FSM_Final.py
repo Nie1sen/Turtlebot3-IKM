@@ -353,17 +353,24 @@ def control_loop(pub, lift_pub, claw_pub, state_pub, debug_pub):
                 state = ALIGN_BASKET
 
         elif state == ALIGN_BASKET:
-
             vel.angular.z = -Kp * basket_error_x
             vel.angular.z = max(-0.3, min(0.3, vel.angular.z))
 
-            if basket_area < 100000:
-                vel.linear.x = 0.08
+            # only drive forward if aligned enough
+            if abs(basket_error_x) < 10:
+
+                if basket_area < 100000:
+                    vel.linear.x = BASE_SPEED - K_AREA * basket_area
+                    vel.linear.x = max(MIN_SPEED, min(BASE_SPEED, vel.linear.x))
+                else:
+                    vel.linear.x = 0.0
+                    vel.angular.z = 0.0
+                    state_start = time.time()
+                    state = LIFT_BASKET
+        
             else:
+                # not aligned yet: just turn in place
                 vel.linear.x = 0.0
-                vel.angular.z = 0.0
-                state_start = time.time()
-                state = LIFT_BASKET
 
         elif state == LIFT_BASKET:
 
