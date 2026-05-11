@@ -17,8 +17,8 @@ import time
 latest_frame = None
 lock = threading.Lock()
 
-model = YOLO("DropoffAndPackageModel.engine", task="detect")
-model2 = YOLO("PackageTop.engine", task="detect")
+model = YOLO("TrashAndBoxes.engine", task="detect")
+model2 = YOLO("topBlockModel.engine", task="detect")
 
 # perception
 block_seen = False
